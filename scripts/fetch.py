@@ -6,7 +6,50 @@
 import json, os, datetime as dt
 from pytrends.request import TrendReq
 
-KW = ["toy", "plush", "cup"]        # ключевые слова меняйте здесь
+KW = [
+    # ───── Accessories ─────
+    "crossbody bag", "phone charm", "tote bag", "bucket hat",
+    "mesh beach bag", "minimalist wallet", "belt bag",
+    "travel organizer", "silk hair scrunchie", "earphone case",
+    "non-slip hair clip", "puffy headband",
+
+    # ───── Toys ─────
+    "fidget toy", "sensory pop it", "building bricks set",
+    "interactive plush", "mini claw machine", "water bead blaster",
+    "lcd drawing tablet", "magnetic cubes", "rc stunt car",
+    "mystery blind box", "collectible vinyl figure",
+
+    # ───── Jewelry ─────
+    "layered necklace", "initial pendant", "tennis bracelet",
+    "ear cuff", "stackable ring", "pearl choker", "birthstone charm",
+    "signet ring", "mismatched earrings", "beaded anklet",
+    "hand-chain bracelet",
+
+    # ───── Dog supplies ─────
+    "no pull harness", "slow feeder bowl", "puzzle toy for dogs",
+    "treat dispensing ball", "dog cooling mat", "hands free leash",
+    "personalised dog tag", "dog snuffle mat", "retractable leash",
+    "chew proof bed",
+
+    # ───── Cat supplies ─────
+    "interactive cat toy", "catnip kicker", "cat window perch",
+    "automatic litter box", "cat fountain", "wall climbing shelf",
+    "laser pointer chaser", "self grooming brush", "cat kicker fish",
+    "foldable cat tunnel", "scratcher lounger",
+
+    # ───── Sport ─────
+    "pickleball paddle", "padel racket", "disc golf set",
+    "training cones", "sports recovery ball", "agility ladder",
+    "portable soccer goal", "foam roller", "overgrip tape",
+    "inflatable kayak", "ski wax kit",
+
+    # ───── Fitness ─────
+    "resistance band set", "adjustable dumbbell", "ankle weight",
+    "pilates ring", "hip thrust pad", "weighted jump rope",
+    "yoga wheel", "massage gun", "smart water bottle",
+    "grip strength trainer", "compact treadmill"
+]
+
 GEO = "RU"                          # страна
 OUT = "public/rising"               # куда класть json
 
