@@ -15,10 +15,16 @@ pytrends = TrendReq(hl="ru-RU", tz=180)
 
 for kw in KW:
     pytrends.build_payload([kw], geo=GEO, timeframe="now 7-d")
-    data = pytrends.related_topics()[kw]["rising"]
-    records = data.to_dict(orient="records")[:20] if data is not None else []
+
+    try:                                    # ▸ добавляем try/except
+        df = pytrends.related_topics()[kw]["rising"]
+        records = df.to_dict(orient="records")[:20] if isinstance(df, pd.DataFrame) else []
+    except (KeyError, IndexError, TypeError):
+        records = []                        # если Google вернул пусто
+
     with open(f"{OUT}/{kw}.json", "w", encoding="utf-8") as f:
         json.dump(records, f, ensure_ascii=False, indent=2)
+
 
 # метка времени обновления
 with open(f"{OUT}/timestamp.txt", "w") as f:
