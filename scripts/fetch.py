@@ -50,23 +50,27 @@ KW = [
     "grip strength trainer", "compact treadmill"
 ]
 
-GEO = "RU"                          # страна
+GEO = ["US", "DE", "FR", "GB", "JP", "CN", "IN", "ES"]                          # страна
 OUT = "public/rising"               # куда класть json
 
 os.makedirs(OUT, exist_ok=True)
-pytrends = TrendReq(hl="ru-RU", tz=180)
+pytrends = TrendReq(hl="en-US", tz=0)
 
-for kw in KW:
-    pytrends.build_payload([kw], geo=GEO, timeframe="now 7-d")
+for geo in GEOS:
+    for kw in KW:
+        pytrends.build_payload([kw], geo=geo, timeframe="now 7-d")
+        try:
+            df = pytrends.related_topics()[kw]["rising"]
+            records = df.to_dict(orient="records")[:20] if isinstance(df, pd.DataFrame) else []
+        except Exception:
+            records = []
 
-    try:                                    # ▸ добавляем try/except
-        df = pytrends.related_topics()[kw]["rising"]
-        records = df.to_dict(orient="records")[:20] if isinstance(df, pd.DataFrame) else []
-    except (KeyError, IndexError, TypeError):
-        records = []                        # если Google вернул пусто
-
-    with open(f"{OUT}/{kw}.json", "w", encoding="utf-8") as f:
-        json.dump(records, f, ensure_ascii=False, indent=2)
+        # ─── save file, e.g.  "fidget_toy_us.json" ───
+        safe_kw = kw.replace(" ", "_")
+        filename = f"{safe_kw}_{geo.lower()}.json"
+        os.makedirs(OUT, exist_ok=True)
+        with open(f"{OUT}/{filename}", "w", encoding="utf-8") as f:
+            json.dump(records, f, ensure_ascii=False, indent=2)
 
 
 # метка времени обновления
