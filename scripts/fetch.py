@@ -50,13 +50,13 @@ KW = [
     "grip strength trainer", "compact treadmill"
 ]
 
-GEO = ["US", "DE", "FR", "GB", "JP", "CN", "IN", "ES"]                          # страна
+GEOS = ["US", "DE", "FR", "GB", "JP", "CN", "IN", "ES"]                          # страна
 OUT = "public/rising"               # куда класть json
 
 os.makedirs(OUT, exist_ok=True)
 pytrends = TrendReq(hl="en-US", tz=0)
 
-for geo in GEO:
+for geo in GEOS:
     for kw in KW:
         pytrends.build_payload([kw], geo=geo, timeframe="now 7-d")
         try:
