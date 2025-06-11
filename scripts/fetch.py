@@ -3,8 +3,6 @@
 Генерирует JSON-файлы c rising-топами Google Trends и кладёт их в /public.
 Запускать через GitHub Actions → schedule (каждый час).
 """
-import json, os, datetime as dt
-from pytrends.request import TrendReq
 
 KW = [
     # ───── Accessories ─────
@@ -53,26 +51,39 @@ KW = [
 GEOS = ["US", "DE", "FR", "GB", "JP", "CN", "IN", "ES"]                          # страна
 OUT = "public/rising"               # куда класть json
 
+import os, json, time, random, datetime as dt
+import pandas as pd
+from itertools import product
+from pytrends.request import TrendReq
+pytrends = TrendReq(
+    hl="en-US", tz=0,
+    timeout=(10,25),              # (connect, read)  – по-тише
+    retries=2, backoff_factor=0.4 # авто-повтор при 429
+)
+
+# ─── вспомогалка: безопасно тащим rising-топ ───────────────────
+def get_rising(keyword:str, geo:str):
+    try:
+        pytrends.build_payload([keyword], geo=geo, timeframe="now 7-d")
+        df = pytrends.related_topics()[keyword]["rising"]
+        if isinstance(df, pd.DataFrame):
+            return df.to_dict(orient="records")[:20]
+    except Exception:
+        pass            # любое падение → вернём пусто
+    return []
+
+# ─── основной цикл с «тормозом» ────────────────────────────────
 os.makedirs(OUT, exist_ok=True)
-pytrends = TrendReq(hl="en-US", tz=0)
+for kw, geo in product(KW, GEOS):
+    records = get_rising(kw, geo)
 
-for geo in GEOS:
-    for kw in KW:
-        pytrends.build_payload([kw], geo=geo, timeframe="now 7-d")
-        try:
-            df = pytrends.related_topics()[kw]["rising"]
-            records = df.to_dict(orient="records")[:20] if isinstance(df, pd.DataFrame) else []
-        except Exception:
-            records = []
+    fname = f"{kw.replace(' ','_')}_{geo.lower()}.json"
+    with open(f"{OUT}/{fname}", "w", encoding="utf-8") as f:
+        json.dump(records, f, ensure_ascii=False, indent=2)
 
-        # ─── save file, e.g.  "fidget_toy_us.json" ───
-        safe_kw = kw.replace(" ", "_")
-        filename = f"{safe_kw}_{geo.lower()}.json"
-        os.makedirs(OUT, exist_ok=True)
-        with open(f"{OUT}/{filename}", "w", encoding="utf-8") as f:
-            json.dump(records, f, ensure_ascii=False, indent=2)
+    # ▸ пауза 1-2 сек + лёгкий джиттер
+    time.sleep(1 + random.random())
 
-
-# метка времени обновления
+# ─── метка времени ─────────────────────────────────────────────
 with open(f"{OUT}/timestamp.txt", "w") as f:
     f.write(dt.datetime.utcnow().isoformat()+"Z")
