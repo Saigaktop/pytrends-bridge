@@ -56,7 +56,7 @@ OUT = "public/rising"               # куда класть json
 os.makedirs(OUT, exist_ok=True)
 pytrends = TrendReq(hl="en-US", tz=0)
 
-for geo in GEOS:
+for geo in GEO:
     for kw in KW:
         pytrends.build_payload([kw], geo=geo, timeframe="now 7-d")
         try:
