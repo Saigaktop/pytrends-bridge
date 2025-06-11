@@ -2,7 +2,7 @@ name: build-pytrends-json
 
 on:
   schedule:
-    - cron: '*/60 * * * *'    # каждые 60 минут
+    - cron:  '0 */2 * * *'    # каждые 2 часа
   workflow_dispatch:          # запуск «вручную» по кнопке
 
 permissions:
